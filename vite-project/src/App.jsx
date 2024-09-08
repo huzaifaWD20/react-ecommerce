@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider } from 'react-router-dom';
 import MainLayout from './Layouts/MainLayout.jsx';
 import HomePage from './pages/HomePage';
+import ProfilePage from './pages/ProfilePage'; 
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import SingleProductPage, { productLoader } from './pages/SingleProductPage';
@@ -90,6 +91,8 @@ const App = () => {
         />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/login" element={<LoginPage onLogin={handleUserLogin} />} />
+        <Route path="/profile/:userId" element={<ProfilePage />} />
+  
         <Route 
           path="/products/:productId" 
           element={

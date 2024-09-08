@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { SignUpUser, LoginUser } from '../assets/utils/authentication.js';
+//import { SignUpUser, LoginUser } from '../assets/utils/authentication.js';
+import axios from 'axios';
 
 const AuthenticationForm = ({ isSignUp, onLogin }) => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
@@ -13,27 +14,42 @@ const AuthenticationForm = ({ isSignUp, onLogin }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       if (isSignUp) {
         if (formData.password !== formData.confirmPassword) {
           toast.error('Passwords do not match');
           return;
         }
-        await SignUpUser({ name: formData.name, email: formData.email, password: formData.password });
+  
+        // Sign Up Logic
+        await axios.post('http://localhost:3001/auth/register', {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        });
         toast.success('Signup successful!');
         navigate('/login');
       } else {
-        const user = await LoginUser(formData.email, formData.password);
-        toast.success('Login successful!');
-        onLogin(user);  // Pass user information to App.jsx
-        navigate('/');
+        // Login Logic
+        const response = await axios.post('http://localhost:3001/auth/login', {
+          email: formData.email,
+          password: formData.password,
+        });
+  
+        if (response.data) {
+          toast.success('Login successful!');
+          onLogin(response.data); // Pass user information to App.jsx
+          navigate('/');
+        } else {
+          toast.error('Login failed');
+        }
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.response?.data?.message || 'Something went wrong');
     }
   };
-
+  
   return (
     <form onSubmit={handleSubmit} className="bg-gray-900 p-8 rounded-lg shadow-md max-w-md mx-auto border border-teal-400">
       <h2 className="text-2xl font-bold text-teal-400 mb-6">{isSignUp ? 'Sign Up' : 'Login'}</h2>

@@ -1,13 +1,15 @@
+// components/Navbar.js
 import React, { useState, useCallback } from 'react';
+import PropTypes from 'prop-types';  // Import PropTypes
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { FiShoppingCart, FiUser } from 'react-icons/fi';
 import { FaPlus, FaMinus, FaTimes } from 'react-icons/fa';
-import { LogoutUser } from '../assets/utils/authentication.js';
+import axios from 'axios';
 
 const Navbar = ({ cartItems = [], removeFromCart, addToCart, decreaseQuantity, user, setUser }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
 
   // Calculate total price based on cart items
   const totalPrice = cartItems.reduce(
@@ -15,11 +17,17 @@ const Navbar = ({ cartItems = [], removeFromCart, addToCart, decreaseQuantity, u
     0
   );
 
-  const handleLogout = useCallback(() => {
-    LogoutUser();
-    setUser(null); // Clear user state
-    navigate('/');
-    window.location.reload();  // To update the Navbar state after logout
+  const handleLogout = useCallback(async () => {
+    try {
+      // Call the server-side logout function
+      await axios.get('http://localhost:3001/auth/logout');
+      // Clear local state and navigate
+      setUser(null); // Clear user state in the frontend
+      navigate('/'); // Navigate to home page
+      window.location.reload();  // Reload the page to update the Navbar or any other state
+    } catch (error) {
+      console.log('Logout Error:', error.response?.data?.message || error.message);
+    }
   }, [navigate, setUser]);
 
   // Handle profile dropdown open/close
@@ -152,7 +160,7 @@ const Navbar = ({ cartItems = [], removeFromCart, addToCart, decreaseQuantity, u
             onMouseLeave={handleProfileMouseLeave}
             className="relative"
           >
-            <button className="relative text-gray-400 hover:text-teal-400 transition duration-200">
+            <button className="relative text-gray-400 hover:text-teal-400 transition duration-500">
               <FiUser size={24} />
             </button>
 
@@ -170,7 +178,7 @@ const Navbar = ({ cartItems = [], removeFromCart, addToCart, decreaseQuantity, u
                       </button>
                     </div>
                     <Link
-                      to="/profile"
+                      to={`/profile/${user._id}`} // Assuming 'user._id' holds the user ID
                       className="text-sm bg-teal-500 text-white py-2 px-4 rounded-full hover:bg-teal-600 transition duration-300 mt-4 block text-center"
                     >
                       View Profile
@@ -199,6 +207,26 @@ const Navbar = ({ cartItems = [], removeFromCart, addToCart, decreaseQuantity, u
       </div>
     </nav>
   );
+};
+
+// Prop validation
+Navbar.propTypes = {
+  cartItems: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    price: PropTypes.string.isRequired,
+    quantity: PropTypes.number.isRequired,
+    image: PropTypes.string.isRequired,
+  })).isRequired,
+  removeFromCart: PropTypes.func.isRequired,
+  addToCart: PropTypes.func.isRequired,
+  decreaseQuantity: PropTypes.func.isRequired,
+  user: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    // Add other user properties if needed
+  }),
+  setUser: PropTypes.func.isRequired,
 };
 
 export default Navbar;
