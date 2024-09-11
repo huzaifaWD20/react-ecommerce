@@ -1,10 +1,46 @@
-// src/pages/HomePage.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import ProductCard from '../components/ProductCard';
-import { hotProducts, latestProducts, featuredProducts } from '../assets/utils/sampleData.js'; // Example data
 
 const HomePage = ({ cartItems, addToCart, increaseQuantity, decreaseQuantity }) => {
-  // console.log('HomePage props:', { addToCart, cartItems, increaseQuantity, decreaseQuantity });
+  const [hotProducts, setHotProducts] = useState([]);
+  const [latestProducts, setLatestProducts] = useState([]);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+
+  // Fetch products from MongoDB
+  useEffect(() => {
+    const fetchHotProducts = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/product/hotprod'); // Adjust your URL
+        setHotProducts(response.data);
+      } catch (error) {
+        console.error('Error fetching hot products:', error);
+      }
+    };
+
+    const fetchLatestProducts = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/product/latest');
+        setLatestProducts(response.data);
+      } catch (error) {
+        console.error('Error fetching latest products:', error);
+      }
+    };
+
+    const fetchFeaturedProducts = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/product/featured');
+        setFeaturedProducts(response.data);
+      } catch (error) {
+        console.error('Error fetching featured products:', error);
+      }
+    };
+
+    fetchHotProducts();
+    fetchLatestProducts();
+    fetchFeaturedProducts();
+  }, []); // Empty dependency array means this effect runs once on mount
+
   return (
     <div>
       {/* Hot Products Carousel */}
@@ -13,7 +49,7 @@ const HomePage = ({ cartItems, addToCart, increaseQuantity, decreaseQuantity }) 
         <div className="flex overflow-x-auto space-x-4">
           {hotProducts.map(product => (
             <ProductCard
-              key={product.id}
+              key={product._id}
               product={product}
               addToCart={addToCart}
               cartItems={cartItems}
@@ -30,7 +66,7 @@ const HomePage = ({ cartItems, addToCart, increaseQuantity, decreaseQuantity }) 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {latestProducts.map(product => (
             <ProductCard
-              key={product.id}
+              key={product._id}
               product={product}
               addToCart={addToCart}
               cartItems={cartItems}
@@ -47,7 +83,7 @@ const HomePage = ({ cartItems, addToCart, increaseQuantity, decreaseQuantity }) 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {featuredProducts.map(product => (
             <ProductCard
-              key={product.id}
+              key={product._id}
               product={product}
               addToCart={addToCart}
               cartItems={cartItems}

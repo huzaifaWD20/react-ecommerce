@@ -1,31 +1,54 @@
-// src/pages/AllProductsPage.jsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import axios from 'axios';
 import ProductCard from '../components/ProductCard';
-import { hotProducts, latestProducts, featuredProducts } from '../assets/utils/sampleData.js';
 
 const AllProductsPage = ({ addToCart, cartItems, increaseQuantity, decreaseQuantity }) => {
+  const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedType, setSelectedType] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 6;
 
-  // Combine all products into one list
-  const allProducts = useMemo(() => [
-    ...hotProducts.map(product => ({ ...product, category: 'Hot' })),
-    ...latestProducts.map(product => ({ ...product, category: 'Latest' })),
-    ...featuredProducts.map(product => ({ ...product, category: 'Featured' }))
-  ], []);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/product/all');
+        console.log(response.data); // Log to verify data structure
+        if (Array.isArray(response.data)) {
+          setProducts(response.data);
+        } else {
+          console.error('Expected an array but got:', response.data);
+          setProducts([]); // Set to empty array if data is not an array
+        }
+      } catch (err) {
+        console.error('Error fetching products', err);
+        setProducts([]); // Set to empty array on error
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   // Filter products by search term, category, and type
   const filteredProducts = useMemo(() => {
-    return allProducts.filter(product => {
+    console.log('Filtering products with:', {
+      searchTerm,
+      selectedCategory,
+      selectedType,
+      products
+    });
+    if (!Array.isArray(products)) {
+      return [];
+    }
+
+    return products.filter(product => {
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
       const matchesType = selectedType === 'All' || product.type === selectedType;
       return matchesSearch && matchesCategory && matchesType;
     });
-  }, [searchTerm, selectedCategory, selectedType, allProducts]);
+  }, [searchTerm, selectedCategory, selectedType, products]);
 
   // Pagination logic
   const indexOfLastProduct = currentPage * productsPerPage;
@@ -57,9 +80,9 @@ const AllProductsPage = ({ addToCart, cartItems, increaseQuantity, decreaseQuant
           className="border border-gray-300 rounded px-4 py-2"
         >
           <option value="All">All Categories</option>
-          <option value="Hot">Hot Products</option>
-          <option value="Latest">Latest Products</option>
-          <option value="Featured">Featured Products</option>
+          <option value="hot">Hot Products</option>
+          <option value="latest">Latest Products</option>
+          <option value="featured">Featured Products</option>
         </select>
 
         {/* Type Filter */}
@@ -80,7 +103,7 @@ const AllProductsPage = ({ addToCart, cartItems, increaseQuantity, decreaseQuant
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {currentProducts.map((product) => (
           <ProductCard
-            key={product.id}
+            key={product._id} // Assuming MongoDB ObjectID
             product={product}
             addToCart={addToCart}
             cartItems={cartItems}

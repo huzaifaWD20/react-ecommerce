@@ -1,32 +1,44 @@
 import React, { useEffect, useState } from 'react';
-import { useLoaderData, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { ClipLoader } from 'react-spinners';
-import { hotProducts, latestProducts, featuredProducts } from '../assets/utils/sampleData';
-
-// Combine all product arrays into one array for easier searching
-const sampleProducts = [...hotProducts, ...latestProducts, ...featuredProducts];
-
-// Loader function to fetch product data by ID
-export const productLoader = ({ params }) => {
-  const productId = parseInt(params.productId);
-  const product = sampleProducts.find((item) => item.id === productId);
-  return product;
-};
-
 
 const SingleProductPage = ({ cartItems = [], addToCart, increaseQuantity, decreaseQuantity }) => {
-  const product = useLoaderData();
-  const [loading, setLoading] = useState(true);
+  const { productId } = useParams();
   const navigate = useNavigate();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Check if the product is already in the cart
-  const cartItem = cartItems.find((item) => item.id === product.id);
-
+  // Fetch product data by ID
   useEffect(() => {
-    if (product) {
-      setLoading(false);
-    }
-  }, [product]);
+    const fetchProduct = async () => {
+      try {
+        const routes = ['/product/hotprod', '/product/latest', '/product/featured'];
+        let foundProduct = null;
+
+        for (const route of routes) {
+          const response = await axios.get(route);
+          const products = response.data;
+          foundProduct = products.find(item => item.id === parseInt(productId));
+
+          if (foundProduct) break;
+        }
+
+        if (foundProduct) {
+          setProduct(foundProduct);
+        } else {
+          setError('Product not found');
+        }
+      } catch (err) {
+        setError('Error fetching product');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [productId]);
 
   if (loading) {
     return (
@@ -35,6 +47,25 @@ const SingleProductPage = ({ cartItems = [], addToCart, increaseQuantity, decrea
       </div>
     );
   }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-gray-500">Product not found.</p>
+      </div>
+    );
+  }
+
+  // Check if the product is already in the cart
+  const cartItem = cartItems.find((item) => item.id === product.id);
 
   return (
     <div className="container mx-auto p-6">

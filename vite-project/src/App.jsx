@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { useState, useEffect } from 'react';
 import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider } from 'react-router-dom';
 import MainLayout from './Layouts/MainLayout.jsx';
@@ -5,10 +6,9 @@ import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage'; 
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
-import SingleProductPage, { productLoader } from './pages/SingleProductPage';
-import AllProductsPage from './pages/AllProductsPage.jsx';
+import SingleProductPage from './pages/SingleProductPage';
+import AllProductsPage from './pages/AllProductsPage';
 import NotFoundPage from './pages/NotFoundPage';
-import { hotProducts, latestProducts, featuredProducts } from '../src/assets/utils/sampleData.js';
 import { getCurrentUser } from '../src/assets/utils/authentication.js';
 
 const App = () => {
@@ -81,14 +81,12 @@ const App = () => {
             <HomePage
               cartItems={cartItems}
               addToCart={addToCart}
-              hotProducts={hotProducts}
-              latestProducts={latestProducts}
-              featuredProducts={featuredProducts}
               increaseQuantity={increaseQuantity}
               decreaseQuantity={decreaseQuantity}
             />
           }
         />
+        
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/login" element={<LoginPage onLogin={handleUserLogin} />} />
         <Route path="/profile/:userId" element={<ProfilePage />} />
@@ -102,12 +100,10 @@ const App = () => {
               increaseQuantity={increaseQuantity}
               decreaseQuantity={decreaseQuantity}
             />} 
-          loader={productLoader}
         />
         <Route 
           path='/products' 
-          element=
-          {
+          element={
             <AllProductsPage 
               addToCart={addToCart}
               increaseQuantity={increaseQuantity}

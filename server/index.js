@@ -27,6 +27,7 @@ app.use(passport.session());
 // Use Routes
 app.use("/auth",require("./routes/authRoutes"));
 app.use("/user", require("./routes/userRoutes"));
+app.use("/product", require("./routes/productRoutes"));
 
 connectDb();
 
