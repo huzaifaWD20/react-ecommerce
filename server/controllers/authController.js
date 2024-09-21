@@ -23,42 +23,41 @@ exports.registerUser = async(req,res) => {
     }
 }
 
-exports.loginUser = async(req,res,next) => {
-    passport.authenticate('local', async (err, user, info) => {
-        if (err) return next(err);
-        if(!user) return res.status(404).json({message: "login error!"});
+exports.loginUser = async (req, res, next) => {
+  passport.authenticate('local', async (err, user, info) => {
+    if (err) return next(err);
+    if (!user) return res.status(404).json({ message: 'Login error!' });
 
-        req.logIn(user, async (err) => {
-            if(err) return next(err);
+    req.logIn(user, (err) => {
+      if (err) return next(err);
 
-            try{
-                return res.status(200).json({message:"login successfull"}),
-                user
-            } catch(error){
-                console.log("Error during login: ",error);
-                return next(error);
-            }
-        })
-    })(req, res, next);
-}
-
-exports.logoutUser =  async (req, res, next) => {
-    if(!req.user || !req.user.id) {
-        console.error("User is not authenticated or User ID is missing");
-        return res.status(401).json({message: "Unauthorized"});
-    }
-
-    try {
-        req.logout(err => {
-            if (err) {
-                console.error("Error during logout: ", err);
-                return next(err);
-        }
-
-        return res.status(200).json({message: "successfully logout"})
-    });
-    }catch (error) {
-        console.log("Error during logout: ", error);
+      try {
+        // Ensure the response contains the required user information
+        return res.status(200).json({
+          message: 'Login successful',
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          // Add other fields as needed
+        });
+      } catch (error) {
+        console.log('Error during login:', error);
         return next(error);
-    }
-}
+      }
+    });
+  })(req, res, next);
+};
+
+  
+
+exports.logoutUser =  (req, res) => {
+    req.logout((err) => {
+      if (err) {
+        return res.status(500).json({ message: 'Logout failed' });
+      }
+      req.session.destroy(); // Destroy session
+      res.clearCookie('connect.sid'); // Clear session cookie
+      res.status(200).json({ message: 'Logged out successfully' });
+    });
+  };
+  

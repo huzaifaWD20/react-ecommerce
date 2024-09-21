@@ -10,26 +10,11 @@ const SingleProductPage = ({ cartItems = [], addToCart, increaseQuantity, decrea
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch product data by ID
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const routes = ['/product/hotprod', '/product/latest', '/product/featured'];
-        let foundProduct = null;
-
-        for (const route of routes) {
-          const response = await axios.get(route);
-          const products = response.data;
-          foundProduct = products.find(item => item.id === parseInt(productId));
-
-          if (foundProduct) break;
-        }
-
-        if (foundProduct) {
-          setProduct(foundProduct);
-        } else {
-          setError('Product not found');
-        }
+        const response = await axios.get(`http://localhost:3001/product/${productId}`);
+        setProduct(response.data);
       } catch (err) {
         setError('Error fetching product');
       } finally {
@@ -64,8 +49,7 @@ const SingleProductPage = ({ cartItems = [], addToCart, increaseQuantity, decrea
     );
   }
 
-  // Check if the product is already in the cart
-  const cartItem = cartItems.find((item) => item.id === product.id);
+  const cartItem = cartItems.find((item) => item._id === product._id);
 
   return (
     <div className="container mx-auto p-6">
@@ -78,46 +62,27 @@ const SingleProductPage = ({ cartItems = [], addToCart, increaseQuantity, decrea
         </div>
         <div className="col-span-2">
           <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
-          <p className="text-xl text-gray-700 mb-4">{product.price}</p>
+          <p className="text-xl text-gray-700 mb-4">${product.price}</p>
           <p className="mb-4">{product.description}</p>
           <div className="mb-6">
             <span className="text-yellow-400">{`★`.repeat(product.rating)}</span>
             <span className="text-gray-400">{`★`.repeat(5 - product.rating)}</span>
             <p className="text-sm text-gray-500">Based on {product.reviews.length} reviews</p>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center mb-4">
             {cartItem ? (
-              // If product is in the cart, show quantity controls
               <div className="flex items-center">
-                <button
-                  className="bg-gray-300 text-gray-900 px-2 py-1 rounded-l"
-                  onClick={() => decreaseQuantity(product)}
-                >
-                  -
-                </button>
-                <input
-                  type="number"
-                  value={cartItem.quantity}
-                  readOnly
-                  className="w-12 text-center border border-gray-300 focus:outline-none"
-                />
-                <button
-                  className="bg-gray-300 text-gray-900 px-2 py-1 rounded-r"
-                  onClick={() => increaseQuantity(product)}
-                >
-                  +
-                </button>
+                <button className="bg-gray-300 text-gray-900 px-2 py-1 rounded-l" onClick={() => decreaseQuantity(product)}>-</button>
+                <input type="number" value={cartItem.quantity} readOnly className="w-12 text-center border border-gray-300 focus:outline-none" />
+                <button className="bg-gray-300 text-gray-900 px-2 py-1 rounded-r" onClick={() => increaseQuantity(product)}>+</button>
               </div>
             ) : (
-              // If product is not in the cart, show Add to Cart button
-              <button
-                className="bg-teal-500 text-white px-4 py-2 rounded-md"
-                onClick={() => addToCart(product)}
-              >
-                Add to Cart
-              </button>
+              <button className="bg-teal-500 text-white px-4 py-2 rounded-md" onClick={() => addToCart(product)}>Add to Cart</button>
             )}
           </div>
+          <button className="bg-blue-500 text-white px-4 py-2 rounded-md mt-4" onClick={() => navigate(`/create-order/${productId}`)}>
+            Checkout
+          </button>
         </div>
       </div>
       <div className="mt-10">

@@ -2,26 +2,54 @@ const Product = require("../models/productModel");
 
 // Add a new product
 const addProduct = async (req, res) => {
-    try {
-        const { id, name, description, price, image, rating, reviews } = req.body;
+  try {
+      const { id, name, description, price, image, rating, category, reviews } = req.body;
 
-        // Create a new product
-        const newProduct = new Product({
-            id,
-            name,
-            description,
-            price,
-            image,
-            rating,
-            reviews
-        });
+      // Validate required fields
+      if (!id || !name || !description || !price || !image || !rating || !category) {
+          return res.status(400).json({ message: "All required fields must be provided" });
+      }
 
-        // Save the product in the database
-        const savedProduct = await newProduct.save();
-        res.status(201).json({ message: "Product added successfully", product: savedProduct });
-    } catch (error) {
-        res.status(500).json({ message: "Error adding product", error });
+      // Create a new product
+      const newProduct = new Product({
+          id,
+          name,
+          description,
+          price,
+          image,
+          rating,
+          category, // Ensure category is provided
+          reviews
+      });
+
+      // Save the product in the database
+      const savedProduct = await newProduct.save();
+      res.status(201).json({ message: "Product added successfully", product: savedProduct });
+  } catch (error) {
+      res.status(500).json({ message: "Error adding product", error });
+  }
+};
+
+
+const getProductById = async (req, res) => {
+  try {
+    const { productid } = req.params; // Extract product ID from the URL parameters
+    console.log(productid)
+    // Find the product by ID
+    const product = await Product.findById(productid);
+
+    // If product not found, return a 404 response
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
     }
+
+    // Return the product details in the response
+    res.json(product);
+  } catch (error) {
+    // Handle errors and return a 500 response
+    console.error('Error fetching product:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 };
 
 // Update an existing product
@@ -108,5 +136,6 @@ module.exports = {
     getLatestProducts,
     getFeaturedProducts,
     getAllProducts,
-    deleteProduct
+    deleteProduct,
+    getProductById
 };

@@ -14,6 +14,8 @@ router.get("/featured", productcontroller.getFeaturedProducts);
 
 router.get("/all", productcontroller.getAllProducts); 
 
+router.get("/:productid", productcontroller.getProductById); 
+
 router.delete("deleteproduct", productcontroller.deleteProduct);
 
 module.exports = router;

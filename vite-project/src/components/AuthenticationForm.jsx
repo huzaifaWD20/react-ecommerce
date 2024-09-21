@@ -38,6 +38,9 @@ const AuthenticationForm = ({ isSignUp, onLogin }) => {
         });
   
         if (response.data) {
+          // Check the full response for debugging
+          console.log('Full response data:', response.data);
+  
           toast.success('Login successful!');
           onLogin(response.data); // Pass user information to App.jsx
           navigate('/');

@@ -1,25 +1,45 @@
-// src/components/ProductCard.jsx
-import React from 'react';
-import { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaCartPlus, FaArrowRight } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 const ProductCard = ({ product, addToCart, cartItems = [], increaseQuantity, decreaseQuantity }) => {
-    // console.log('ProductCard rendered', { product, addToCart, cartItems, increaseQuantity, decreaseQuantity }); 
-    const [isInCart, setIsInCart] = useState(false);
-    const [quantity, setQuantity] = useState(0);
+  const [isInCart, setIsInCart] = useState(false);
+  const [quantity, setQuantity] = useState(0);
+
+  useEffect(() => {
+    // Check if the product is in the cart and update quantity
+    const item = cartItems.find(item => item._id === product._id);
+    if (item) {
+      setIsInCart(true);
+      setQuantity(item.quantity);
+    } else {
+      setIsInCart(false);
+      setQuantity(0);
+    }
+  }, [cartItems, product._id]);
+  //console.log(product.id)
+  const handleAddToCart = async () => {
+    try {
+      addToCart(product);
   
-    useEffect(() => {
-      // Check if the product is in the cart and update quantity
-      const item = cartItems.find(item => item.id === product.id);
-      if (item) {
-        setIsInCart(true);
-        setQuantity(item.quantity);
+      const storedUser = JSON.parse(sessionStorage.getItem('user'));
+      if (storedUser && storedUser._id) {
+        await axios.post('http://localhost:3001/user/cart', {
+          userId: storedUser._id,
+          productId: product._id, // Ensure it's a string
+          quantity: 1
+        });
+        console.log('Product added to cart successfully');
       } else {
-        setIsInCart(false);
-        setQuantity(0);
+        console.log('User is not logged in');
       }
-    }, [cartItems, product.id]);
+    } catch (error) {
+      console.error('Error adding product to cart:', error.response?.data?.message || error.message);
+    }
+  };
+  
+  
 
   return (
     <div className="bg-white shadow-lg rounded-lg p-4">
@@ -46,14 +66,14 @@ const ProductCard = ({ product, addToCart, cartItems = [], increaseQuantity, dec
           </div>
         ) : (
           <button
-            onClick={() => addToCart(product)}
+            onClick={handleAddToCart}
             className="flex items-center bg-teal-600 text-white px-4 py-2 rounded-full hover:bg-teal-700 transition duration-300"
           >
             <FaCartPlus className="mr-2" /> Add to Cart
           </button>
         )}
         <Link
-          to={`/products/${product.id}`}
+          to={`/products/${product._id}`}
           className="flex items-center bg-gray-200 text-gray-800 px-4 py-2 rounded-full hover:bg-gray-300 transition duration-300"
         >
           Read More <FaArrowRight className="ml-2" />
