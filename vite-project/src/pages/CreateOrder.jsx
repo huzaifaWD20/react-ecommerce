@@ -7,9 +7,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 const CreateOrder = () => {
   const navigate = useNavigate();
-  const { productId } = useParams(); // Get productId from URL
+  const { productId } = useParams();
 
-  // Initialize order data state
   const [orderData, setOrderData] = useState({
     orderItems: [],
     shippingAddress: {
@@ -30,7 +29,6 @@ const CreateOrder = () => {
   const [productDetails, setProductDetails] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Fetch product details and add to orderItems on mount if productId is provided
   useEffect(() => {
     const fetchProductAndAdd = async () => {
       if (productId) {
@@ -39,14 +37,12 @@ const CreateOrder = () => {
           const response = await axios.get(`http://localhost:3001/product/${productId}`);
           const product = response.data;
 
-          // Ensure the price is a string as per the model
           const formattedProduct = {
             ...product,
             price: product.price.toString(),
           };
 
           setProductDetails(formattedProduct);
-          // Automatically add product to order if not already present
           addProductToOrder(formattedProduct);
         } catch (error) {
           console.error('Error fetching product details:', error);
@@ -60,7 +56,6 @@ const CreateOrder = () => {
     fetchProductAndAdd();
   }, [productId]);
 
-  // Function to add product to orderItems
   const addProductToOrder = (product) => {
     if (product) {
       setOrderData((prevState) => {
@@ -69,7 +64,7 @@ const CreateOrder = () => {
         );
         if (isProductInOrder) {
           console.log(`Product ${product._id} is already in the order.`);
-          return prevState; // Don't add if it's already in the order
+          return prevState;
         }
 
         console.log(`Adding product ${product._id} to the order.`);
@@ -80,8 +75,8 @@ const CreateOrder = () => {
             {
               productId: product._id,
               name: product.name,
-              quantity: 1, // Default quantity
-              price: product.price, // Keep as string
+              quantity: 1,
+              price: product.price,
             },
           ],
         };
@@ -89,7 +84,6 @@ const CreateOrder = () => {
     }
   };
 
-  // Fetch cart items from the backend if user is logged in and productId is not present
   useEffect(() => {
     const fetchCartItems = async () => {
       const user = JSON.parse(sessionStorage.getItem('user'));
@@ -98,7 +92,6 @@ const CreateOrder = () => {
           const response = await axios.get(`http://localhost:3001/user/cart/${user._id}`);
           const cartItems = response.data.cartItems;
 
-          // Add each cart item to orderItems
           cartItems.forEach((item) => {
             addProductToOrder({
               _id: item.productId,
@@ -116,7 +109,6 @@ const CreateOrder = () => {
     fetchCartItems();
   }, [productId]);
 
-  // Recalculate prices whenever orderItems change
   useEffect(() => {
     const calculatePrices = () => {
       const itemsPrice = orderData.orderItems.reduce((acc, item) => {
@@ -131,8 +123,8 @@ const CreateOrder = () => {
         return acc + price * quantity;
       }, 0);
 
-      const taxPrice = parseFloat((0.1 * itemsPrice).toFixed(2)); // 10% tax
-      const shippingPrice = itemsPrice > 0 ? 5 : 0; // $5 shipping fee
+      const taxPrice = parseFloat((0.1 * itemsPrice).toFixed(2));
+      const shippingPrice = itemsPrice > 0 ? 5 : 0;
       const totalPrice = itemsPrice + taxPrice + shippingPrice;
 
       console.log('Calculating prices:', { itemsPrice, taxPrice, shippingPrice, totalPrice });
@@ -149,7 +141,6 @@ const CreateOrder = () => {
     calculatePrices();
   }, [orderData.orderItems]);
 
-  // Handle input changes for orderData fields (e.g., paymentMethod)
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setOrderData((prevState) => ({
@@ -158,7 +149,6 @@ const CreateOrder = () => {
     }));
   };
 
-  // Handle input changes for shippingAddress fields
   const handleShippingAddressChange = (e) => {
     const { name, value } = e.target;
     setOrderData((prevState) => ({
@@ -170,7 +160,6 @@ const CreateOrder = () => {
     }));
   };
 
-  // Increase quantity of a specific order item
   const increaseQuantity = (productId) => {
     setOrderData((prevState) => ({
       ...prevState,
@@ -182,7 +171,6 @@ const CreateOrder = () => {
     }));
   };
 
-  // Decrease quantity of a specific order item
   const decreaseQuantity = (productId) => {
     setOrderData((prevState) => ({
       ...prevState,
@@ -194,7 +182,6 @@ const CreateOrder = () => {
     }));
   };
 
-  // Remove an item from orderItems
   const handleRemoveItem = (productId) => {
     setOrderData((prevState) => ({
       ...prevState,
@@ -205,7 +192,6 @@ const CreateOrder = () => {
     toast.info('Item removed from the order.');
   };
 
-  // Handle form submission to create order
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -215,30 +201,25 @@ const CreateOrder = () => {
         throw new Error('User not found in session');
       }
 
-      // Validate orderItems
       if (orderData.orderItems.length === 0) {
         throw new Error('No items in the order');
       }
 
-      // Optionally, validate shippingAddress and paymentMethod here
-
-      // Prepare order data for submission
       const orderToSubmit = {
         ...orderData,
         orderItems: orderData.orderItems.map((item) => ({
           ...item,
-          price: item.price.toString(), // Ensure price is string
+          price: item.price.toString(),
         })),
       };
 
-      // Create order
       const response = await axios.post(
         'http://localhost:3001/orders/create',
         orderToSubmit,
         {
           withCredentials: true,
           headers: {
-            'x-user-id': user._id, // Pass user._id in a custom header
+            'x-user-id': user._id,
           },
         }
       );
@@ -275,15 +256,15 @@ const CreateOrder = () => {
                 {orderData.orderItems.map((item) => (
                   <li
                     key={item.productId}
-                    className="flex justify-between items-center p-4 border border-gray-300 rounded-md"
+                    className="flex flex-col md:flex-row justify-between items-center p-4 border border-gray-300 rounded-md"
                   >
-                    <div>
+                    <div className="flex-1">
                       <h3 className="text-lg font-medium">{item.name}</h3>
                       <span className="text-sm text-gray-600">
                         Price per item: {item.price}
                       </span>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 mt-2 md:mt-0">
                       <button
                         type="button"
                         onClick={() => decreaseQuantity(item.productId)}
@@ -305,7 +286,7 @@ const CreateOrder = () => {
                         className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition"
                         title="Remove Item"
                       >
-                        &times;
+                        X
                       </button>
                     </div>
                   </li>
@@ -316,147 +297,112 @@ const CreateOrder = () => {
 
           {/* Shipping Address */}
           <div>
-            <h2 className="text-xl font-semibold mb-2">Shipping Address</h2>
+            <h2 className="text-lg font-semibold mb-2">Shipping Address</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  id="fullName"
-                  name="fullName"
-                  value={orderData.shippingAddress.fullName}
-                  onChange={handleShippingAddressChange}
-                  required
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div>
-                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  id="phoneNumber"
-                  name="phoneNumber"
-                  value={orderData.shippingAddress.phoneNumber}
-                  onChange={handleShippingAddressChange}
-                  required
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-                  Address
-                </label>
-                <input
-                  type="text"
-                  id="address"
-                  name="address"
-                  value={orderData.shippingAddress.address}
-                  onChange={handleShippingAddressChange}
-                  required
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div>
-                <label htmlFor="city" className="block text-sm font-medium text-gray-700">
-                  City
-                </label>
-                <input
-                  type="text"
-                  id="city"
-                  name="city"
-                  value={orderData.shippingAddress.city}
-                  onChange={handleShippingAddressChange}
-                  required
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div>
-                <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700">
-                  Postal Code
-                </label>
-                <input
-                  type="text"
-                  id="postalCode"
-                  name="postalCode"
-                  value={orderData.shippingAddress.postalCode}
-                  onChange={handleShippingAddressChange}
-                  required
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div>
-                <label htmlFor="country" className="block text-sm font-medium text-gray-700">
-                  Country
-                </label>
-                <input
-                  type="text"
-                  id="country"
-                  name="country"
-                  value={orderData.shippingAddress.country}
-                  onChange={handleShippingAddressChange}
-                  required
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
+              <input
+                type="text"
+                name="fullName"
+                value={orderData.shippingAddress.fullName}
+                onChange={handleShippingAddressChange}
+                placeholder="Full Name"
+                className="p-2 border border-gray-300 rounded-md"
+                required
+              />
+              <input
+                type="text"
+                name="address"
+                value={orderData.shippingAddress.address}
+                onChange={handleShippingAddressChange}
+                placeholder="Address"
+                className="p-2 border border-gray-300 rounded-md"
+                required
+              />
+              <input
+                type="text"
+                name="city"
+                value={orderData.shippingAddress.city}
+                onChange={handleShippingAddressChange}
+                placeholder="City"
+                className="p-2 border border-gray-300 rounded-md"
+                required
+              />
+              <input
+                type="text"
+                name="postalCode"
+                value={orderData.shippingAddress.postalCode}
+                onChange={handleShippingAddressChange}
+                placeholder="Postal Code"
+                className="p-2 border border-gray-300 rounded-md"
+                required
+              />
+              <input
+                type="text"
+                name="country"
+                value={orderData.shippingAddress.country}
+                onChange={handleShippingAddressChange}
+                placeholder="Country"
+                className="p-2 border border-gray-300 rounded-md"
+                required
+              />
+              <input
+                type="text"
+                name="phoneNumber"
+                value={orderData.shippingAddress.phoneNumber}
+                onChange={handleShippingAddressChange}
+                placeholder="Phone Number"
+                className="p-2 border border-gray-300 rounded-md"
+                required
+              />
             </div>
           </div>
 
           {/* Payment Method */}
           <div>
-            <label htmlFor="paymentMethod" className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Payment Method
             </label>
             <select
-              id="paymentMethod"
               name="paymentMethod"
               value={orderData.paymentMethod}
               onChange={handleInputChange}
+              className="p-2 border border-gray-300 rounded-md"
               required
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
             >
               <option value="">Select Payment Method</option>
               <option value="PayPal">PayPal</option>
               <option value="Credit Card">Credit Card</option>
-              {/* Add more payment options as needed */}
+              <option value="Cash on Delivery">Cash on Delivery</option>
             </select>
           </div>
 
-          {/* Price Fields */}
-          <div>
-            <h2 className="text-xl font-semibold mb-2">Price Details</h2>
-            <div className="space-y-1">
-              <div className="flex justify-between">
-                <span>Items Price:</span>
-                <span>${orderData.itemsPrice.toFixed(2)}</span> {/* Ensure formatting */}
-              </div>
-              <div className="flex justify-between">
-                <span>Tax Price (10%):</span>
-                <span>${orderData.taxPrice.toFixed(2)}</span> {/* Ensure formatting */}
-              </div>
-              <div className="flex justify-between">
-                <span>Shipping Price:</span>
-                <span>${orderData.shippingPrice.toFixed(2)}</span> {/* Ensure formatting */}
-              </div>
-              <div className="flex justify-between font-semibold">
-                <span>Total Price:</span>
-                <span>${orderData.totalPrice.toFixed(2)}</span> {/* Ensure formatting */}
-              </div>
+          {/* Total Price */}
+          <div className="mt-4">
+            <h2 className="text-lg font-semibold">Order Summary</h2>
+            <div className="flex justify-between">
+              <span>Items Price:</span>
+              <span>${orderData.itemsPrice.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Tax Price:</span>
+              <span>${orderData.taxPrice.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Shipping Price:</span>
+              <span>${orderData.shippingPrice.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between font-semibold">
+              <span>Total Price:</span>
+              <span>${orderData.totalPrice.toFixed(2)}</span>
             </div>
           </div>
 
           {/* Submit Button */}
-          <div>
-            <button
-              type="submit"
-              className="w-full bg-teal-500 text-white py-2 px-4 rounded-md hover:bg-teal-600 transition duration-300"
-            >
-              Submit Order
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+          >
+            Place Order
+          </button>
         </form>
       )}
     </div>

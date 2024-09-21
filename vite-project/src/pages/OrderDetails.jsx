@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { useParams } from 'react-router-dom';
 
 const OrderDetails = () => {
-  const { orderId } = useParams(); // Get the orderId from URL params
+  const { orderId } = useParams();
   const [orderData, setOrderData] = useState({
     orderItems: [],
     shippingAddress: {
@@ -22,7 +22,6 @@ const OrderDetails = () => {
     totalPrice: 0,
   });
 
-  // Function to fetch order details
   const fetchOrder = async () => {
     try {
       const user = JSON.parse(sessionStorage.getItem('user'));
@@ -35,17 +34,16 @@ const OrderDetails = () => {
       const response = await axios.get(`http://localhost:3001/orders/${orderId}`, {
         withCredentials: true,
         headers: {
-          'x-user-id': user._id, // Pass user._id in a custom header
+          'x-user-id': user._id,
         },
       });
 
-      setOrderData(response.data); // Update state with order data
+      setOrderData(response.data);
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to fetch order details.');
     }
   };
 
-  // Effect to fetch order when component mounts
   useEffect(() => {
     if (orderId) {
       fetchOrder();
@@ -66,21 +64,23 @@ const OrderDetails = () => {
           <label htmlFor="paymentMethod" className="block text-sm font-medium text-gray-700">Payment Method</label>
           <p className="mt-1 block w-full p-2 border border-gray-300 rounded-md">{orderData.paymentMethod}</p>
         </div>
-        <div>
-          <label htmlFor="itemsPrice" className="block text-sm font-medium text-gray-700">Items Price</label>
-          <p className="mt-1 block w-full p-2 border border-gray-300 rounded-md">{orderData.itemsPrice}</p>
-        </div>
-        <div>
-          <label htmlFor="taxPrice" className="block text-sm font-medium text-gray-700">Tax Price</label>
-          <p className="mt-1 block w-full p-2 border border-gray-300 rounded-md">{orderData.taxPrice}</p>
-        </div>
-        <div>
-          <label htmlFor="shippingPrice" className="block text-sm font-medium text-gray-700">Shipping Price</label>
-          <p className="mt-1 block w-full p-2 border border-gray-300 rounded-md">{orderData.shippingPrice}</p>
-        </div>
-        <div>
-          <label htmlFor="totalPrice" className="block text-sm font-medium text-gray-700">Total Price</label>
-          <p className="mt-1 block w-full p-2 border border-gray-300 rounded-md">{orderData.totalPrice}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="itemsPrice" className="block text-sm font-medium text-gray-700">Items Price</label>
+            <p className="mt-1 block w-full p-2 border border-gray-300 rounded-md">{orderData.itemsPrice}</p>
+          </div>
+          <div>
+            <label htmlFor="taxPrice" className="block text-sm font-medium text-gray-700">Tax Price</label>
+            <p className="mt-1 block w-full p-2 border border-gray-300 rounded-md">{orderData.taxPrice}</p>
+          </div>
+          <div>
+            <label htmlFor="shippingPrice" className="block text-sm font-medium text-gray-700">Shipping Price</label>
+            <p className="mt-1 block w-full p-2 border border-gray-300 rounded-md">{orderData.shippingPrice}</p>
+          </div>
+          <div>
+            <label htmlFor="totalPrice" className="block text-sm font-medium text-gray-700">Total Price</label>
+            <p className="mt-1 block w-full p-2 border border-gray-300 rounded-md">{orderData.totalPrice}</p>
+          </div>
         </div>
         <div>
           <label htmlFor="orderItems" className="block text-sm font-medium text-gray-700">Order Items</label>

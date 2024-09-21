@@ -10,12 +10,12 @@ router.post('/create', createOrder);
 router.get('/:orderId', getOrderById);
 
 // Get all orders for the logged-in user
-router.get('/user/orders', isAuthenticated, getUserOrders);
+router.get('/user/orders',  getUserOrders);
 
 // Update order status (e.g., mark as shipped or delivered)
-router.put('/:orderId/status', isAuthenticated, updateOrderStatus);
+router.put('/:orderId/status',  updateOrderStatus);
 
 // Delete an order (optional)
-router.delete('/:orderId', isAuthenticated, deleteOrder);
+router.delete('/:orderId',  deleteOrder);
 
 module.exports = router;

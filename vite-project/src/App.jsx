@@ -13,6 +13,7 @@ import CreateOrder from './pages/CreateOrder';
 import UserOrders from './pages/UserOrders';
 import OrderDetails from './pages/OrderDetails';
 import Navbar from './components/Navbar';
+import AboutPage from './pages/About'; // Import AboutPage
 
 const App = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -141,6 +142,7 @@ const App = () => {
         <Route path="/create-order/:productId" element={<CreateOrder />} />
         <Route path="/orders/user-orders" element={<UserOrders />} />
         <Route path="/orders/:orderId" element={<OrderDetails />} />
+        <Route path="/about" element={<AboutPage />} /> {/* Add About Page route */}
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     )

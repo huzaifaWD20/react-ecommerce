@@ -37,8 +37,6 @@ const userSchema = new Schema({
   password: {
     type: String,
     required: [true, 'Password is required'],
-    minlength: [8, 'Password must be at least 8 characters long'],
-    select: false, // Exclude password field by default when querying
   },
   profilePicture: {
     type: String,

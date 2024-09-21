@@ -11,19 +11,17 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [profilePicture, setProfilePicture] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef(null); // Create a ref for the file input
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         const response = await axios.get(`http://localhost:3001/user/profile/${userId}`, { withCredentials: true });
-        console.log("Fetched user:", response.data); // Debug log
         setUser(response.data);
         setLoading(false);
       } catch (err) {
         setError(err.response?.data?.message || 'An error occurred');
         setLoading(false);
-        console.error('Error fetching profile:', err);
       }
     };
 
@@ -51,20 +49,17 @@ const ProfilePage = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log("Upload response:", response.data); // Debug log
       setUser(response.data);
       alert('Profile picture uploaded successfully!');
-      setProfilePicture(null); // Reset the selected picture after upload
+      setProfilePicture(null);
     } catch (error) {
       alert('Failed to upload profile picture');
-      console.error(error);
     } finally {
       setUploading(false);
     }
   };
 
   const handleProfilePictureClick = () => {
-    // Trigger the file input click when the profile picture is clicked
     fileInputRef.current.click();
   };
 
@@ -90,24 +85,21 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="bg-white shadow-lg rounded-lg max-w-md w-full">
-        <div className="flex flex-col items-center p-6">
-          {/* Profile Picture */}
+      <div className="bg-white shadow-lg rounded-lg max-w-md w-full p-6">
+        <div className="flex flex-col items-center">
           <img
             src={user.profilePicture || 'https://via.placeholder.com/150'}
             alt={`${user.name}'s profile`}
-            className="w-32 h-32 rounded-full object-cover mb-4 border-4 border-teal-500 cursor-pointer"
-            onClick={handleProfilePictureClick} // Add click handler here
+            className="w-32 h-32 rounded-full object-cover mb-4 border-4 border-teal-500 cursor-pointer transition-transform transform hover:scale-105"
+            onClick={handleProfilePictureClick}
           />
-          {/* Hidden input for file upload */}
           <input
             type="file"
             ref={fileInputRef}
             onChange={handleProfilePictureChange}
             accept="image/*"
-            className="hidden" // Hide the input
+            className="hidden"
           />
-
           <h2 className="text-2xl font-semibold text-gray-800 mb-2">{user.name}</h2>
           <div className="flex items-center text-gray-600 mb-2">
             <FiMail className="mr-2" />
@@ -118,13 +110,12 @@ const ProfilePage = () => {
             <span>ID: {user._id}</span>
           </div>
 
-          {/* Upload Profile Picture Button */}
           {profilePicture && (
             <div className="mt-4">
               <button
                 onClick={handleProfilePictureUpload}
                 disabled={uploading}
-                className="bg-teal-500 text-white px-4 py-2 rounded-full hover:bg-teal-600 transition duration-300"
+                className={`bg-teal-500 text-white px-4 py-2 rounded-full hover:bg-teal-600 transition duration-300 ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 {uploading ? 'Uploading...' : 'Upload Profile Picture'}
               </button>

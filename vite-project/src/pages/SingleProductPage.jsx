@@ -52,18 +52,22 @@ const SingleProductPage = ({ cartItems = [], addToCart, increaseQuantity, decrea
   const cartItem = cartItems.find((item) => item._id === product._id);
 
   return (
-    <div className="container mx-auto p-6">
-      <button onClick={() => navigate(-1)} className="mb-4 text-blue-500">
+    <div className="container mx-auto p-6 bg-white shadow-lg rounded-lg">
+      <button onClick={() => navigate(-1)} className="mb-4 text-blue-500 hover:underline">
         &larr; Back to Products
       </button>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="col-span-1">
-          <img src={product.image} alt={product.name} className="rounded-lg shadow-md w-full" />
+        <div className="col-span-1 flex justify-center">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="rounded-lg shadow-md w-full h-auto max-h-96 object-contain"
+          />
         </div>
         <div className="col-span-2">
-          <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
-          <p className="text-xl text-gray-700 mb-4">${product.price}</p>
-          <p className="mb-4">{product.description}</p>
+          <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-2">{product.name}</h1>
+          <p className="text-xl text-teal-600 mb-4">{product.price}</p>
+          <p className="text-gray-700 mb-4">{product.description}</p>
           <div className="mb-6">
             <span className="text-yellow-400">{`★`.repeat(product.rating)}</span>
             <span className="text-gray-400">{`★`.repeat(5 - product.rating)}</span>
@@ -72,16 +76,39 @@ const SingleProductPage = ({ cartItems = [], addToCart, increaseQuantity, decrea
           <div className="flex items-center mb-4">
             {cartItem ? (
               <div className="flex items-center">
-                <button className="bg-gray-300 text-gray-900 px-2 py-1 rounded-l" onClick={() => decreaseQuantity(product)}>-</button>
-                <input type="number" value={cartItem.quantity} readOnly className="w-12 text-center border border-gray-300 focus:outline-none" />
-                <button className="bg-gray-300 text-gray-900 px-2 py-1 rounded-r" onClick={() => increaseQuantity(product)}>+</button>
+                <button
+                  className="bg-gray-300 text-gray-900 px-3 py-1 rounded-l hover:bg-gray-400 transition-colors duration-200"
+                  onClick={() => decreaseQuantity(product)}
+                >
+                  -
+                </button>
+                <input
+                  type="number"
+                  value={cartItem.quantity}
+                  readOnly
+                  className="w-12 text-center border border-gray-300 focus:outline-none"
+                />
+                <button
+                  className="bg-gray-300 text-gray-900 px-3 py-1 rounded-r hover:bg-gray-400 transition-colors duration-200"
+                  onClick={() => increaseQuantity(product)}
+                >
+                  +
+                </button>
               </div>
             ) : (
-              <button className="bg-teal-500 text-white px-4 py-2 rounded-md" onClick={() => addToCart(product)}>Add to Cart</button>
+              <button
+                className="bg-teal-500 text-white px-6 py-2 rounded-md hover:bg-teal-600 transition-colors duration-200"
+                onClick={() => addToCart(product)}
+              >
+                Add to Cart
+              </button>
             )}
           </div>
-          <button className="bg-blue-500 text-white px-4 py-2 rounded-md mt-4" onClick={() => navigate(`/create-order/${productId}`)}>
-            Checkout
+          <button
+            className="bg-blue-500 text-white px-6 py-2 rounded-md mt-4 hover:bg-blue-600 transition-colors duration-200"
+            onClick={() => navigate(`/create-order/${productId}`)}
+          >
+            Buy Now
           </button>
         </div>
       </div>
@@ -89,15 +116,15 @@ const SingleProductPage = ({ cartItems = [], addToCart, increaseQuantity, decrea
         <h2 className="text-2xl font-semibold mb-4">Reviews</h2>
         {product.reviews.length > 0 ? (
           product.reviews.map((review, index) => (
-            <div key={index} className="mb-4">
-              <p className="font-semibold">{review.user}</p>
-              <p>{review.comment}</p>
+            <div key={index} className="mb-4 border-b pb-2">
+              <p className="font-semibold text-gray-800">{review.user}</p>
+              <p className="text-gray-600">{review.comment}</p>
               <span className="text-yellow-400">{`★`.repeat(review.rating)}</span>
               <span className="text-gray-400">{`★`.repeat(5 - review.rating)}</span>
             </div>
           ))
         ) : (
-          <p>No reviews yet.</p>
+          <p className="text-gray-500">No reviews yet.</p>
         )}
       </div>
     </div>

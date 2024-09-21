@@ -3,9 +3,7 @@ const User = require('../models/userModel');
 
 // Create a new order
 exports.createOrder = async (req, res) => {
-    console.log("abc")
     userId = req.headers['x-user-id']
-    console.log(userId)
   try {
     const {
       orderItems, shippingAddress, paymentMethod, itemsPrice, taxPrice, shippingPrice, totalPrice,
@@ -35,8 +33,6 @@ exports.createOrder = async (req, res) => {
 };
 
 exports.getOrderById = async (req, res) => {
-    console.log(req.params.orderId);  // Log orderId for debugging
-  
     try {
       const order = await Order.findById(req.params.orderId).populate('user', 'name email');
   

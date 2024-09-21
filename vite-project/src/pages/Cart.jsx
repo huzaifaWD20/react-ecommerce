@@ -6,97 +6,156 @@ const Cart = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch cart items when component mounts
   useEffect(() => {
     const fetchCartItems = async () => {
       try {
-        // Retrieve user data from sessionStorage
         const user = JSON.parse(sessionStorage.getItem('user'));
-  
         if (!user || !user._id) {
           throw new Error('User not found in session');
         }
-  
-        // Make the axios request with user._id in the headers
+
         const response = await axios.get('http://localhost:3001/user/carts', {
           headers: {
-            'x-user-id': user._id // Pass user._id in a custom header
+            'x-user-id': user._id
           }
         });
-  
-        console.log('Cart data:', response.data.cart); // Log cart data to check structure
-  
-        // Set cart items from response data
+
         setCartItems(response.data.cart);
-  
-        // Set loading to false once data is fetched
         setLoading(false);
       } catch (err) {
-        // Set error message if fetching fails
         setError('Failed to fetch cart items.');
         setLoading(false);
       }
     };
-  
+
     fetchCartItems();
   }, []);
-  
-  // Handle removing item from cart
+
   const removeItemFromCart = async (productId) => {
     try {
       await axios.delete(`http://localhost:3001/user/cart/${productId}`);
-      // Update local state by filtering out the removed item
       setCartItems(cartItems.filter(item => item.productId._id !== productId));
     } catch (err) {
       setError('Failed to remove item.');
     }
   };
 
-  // Handle updating quantity of a cart item
   const updateQuantity = async (productId, newQuantity) => {
     try {
       const response = await axios.put('http://localhost:3001/user/cart', { productId, quantity: newQuantity });
-      // Update the cart state with the new quantity
       setCartItems(response.data.cart);
     } catch (err) {
       setError('Failed to update quantity.');
     }
   };
 
-  // Render loading or error state
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  if (loading) return <div className="loading">Loading...</div>;
+  if (error) return <div className="error">{error}</div>;
 
-  // Render the cart items
   return (
-    <div>
-      <h2>Your Cart</h2>
+    <div style={styles.cartContainer}>
+      <h1 style={styles.title}>Your Cart</h1>
       {cartItems.length === 0 ? (
         <p>Your cart is empty</p>
       ) : (
-        <div>
+        <div style={styles.cartItems}>
           {cartItems.map((item) => (
-            <div key={item.productId._id} className="cart-item">
-              {/* Ensure product details are correctly populated */}
-              <p>{item.productId._id}</p>
-              <p>{item.productId.name}</p> {/* Assuming product details like name are populated */}
-              <p>Price: ${item.productId.price}</p> {/* Assuming price is part of product details */}
-              <div>
-                <label>Quantity: </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={item.quantity}
-                  onChange={(e) => updateQuantity(item.productId._id, parseInt(e.target.value))}
-                />
+            <div key={item.productId._id} style={styles.cartItem}>
+              <div style={styles.itemDetails}>
+                <p style={styles.itemName}>{item.productId.name}</p>
+                <p style={styles.itemPrice}>Price: {item.productId.price}</p>
+                <div style={styles.quantityContainer}>
+                  <label>Quantity: </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={item.quantity}
+                    onChange={(e) => updateQuantity(item.productId._id, parseInt(e.target.value))}
+                    style={styles.quantityInput}
+                  />
+                </div>
+                <button style={styles.removeButton} onClick={() => removeItemFromCart(item.productId._id)}>Remove</button>
               </div>
-              <button onClick={() => removeItemFromCart(item.productId._id)}>Remove</button>
             </div>
           ))}
         </div>
       )}
     </div>
   );
+};
+
+const styles = {
+  cartContainer: {
+    maxWidth: '800px',
+    margin: '20px auto',
+    padding: '20px',
+    background: 'white',
+    borderRadius: '8px',
+    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+  },
+  title: {
+    textAlign: 'center',
+    color: '#343a40',
+    marginBottom: '20px',
+  },
+  cartItems: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '15px',
+  },
+  cartItem: {
+    display: 'flex',
+    background: '#f1f1f1',
+    padding: '15px',
+    borderRadius: '8px',
+    boxShadow: '0 1px 5px rgba(0, 0, 0, 0.1)',
+  },
+
+  itemDetails: {
+    flexGrow: 1,
+  },
+  itemName: {
+    fontSize: '1.1rem',
+    fontWeight: 'bold',
+  },
+  itemPrice: {
+    color: '#28a745',
+  },
+  quantityContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    marginTop: '10px',
+  },
+  quantityInput: {
+    width: '50px',
+    marginLeft: '5px',
+    border: '1px solid #ced4da',
+    borderRadius: '4px',
+    padding: '5px',
+  },
+  removeButton: {
+    marginTop: '10px',
+    backgroundColor: '#dc3545',
+    color: 'white',
+    border: 'none',
+    padding: '8px 12px',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s',
+  },
+  removeButtonHover: {
+    backgroundColor: '#c82333',
+  },
+  loading: {
+    textAlign: 'center',
+    color: '#6c757d',
+    fontSize: '1.2rem',
+  },
+  error: {
+    textAlign: 'center',
+    color: '#dc3545',
+    fontSize: '1.2rem',
+  },
 };
 
 export default Cart;

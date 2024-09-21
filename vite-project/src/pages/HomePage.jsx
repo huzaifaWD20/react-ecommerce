@@ -9,44 +9,26 @@ const HomePage = ({ cartItems, addToCart, increaseQuantity, decreaseQuantity }) 
 
   // Fetch products from MongoDB
   useEffect(() => {
-    const fetchHotProducts = async () => {
+    const fetchProducts = async (url, setter) => {
       try {
-        const response = await axios.get('http://localhost:3001/product/hotprod'); // Adjust your URL
-        setHotProducts(response.data);
+        const response = await axios.get(url);
+        setter(response.data);
       } catch (error) {
-        console.error('Error fetching hot products:', error);
+        console.error('Error fetching products:', error);
       }
     };
 
-    const fetchLatestProducts = async () => {
-      try {
-        const response = await axios.get('http://localhost:3001/product/latest');
-        setLatestProducts(response.data);
-      } catch (error) {
-        console.error('Error fetching latest products:', error);
-      }
-    };
-
-    const fetchFeaturedProducts = async () => {
-      try {
-        const response = await axios.get('http://localhost:3001/product/featured');
-        setFeaturedProducts(response.data);
-      } catch (error) {
-        console.error('Error fetching featured products:', error);
-      }
-    };
-
-    fetchHotProducts();
-    fetchLatestProducts();
-    fetchFeaturedProducts();
-  }, []); // Empty dependency array means this effect runs once on mount
+    fetchProducts('http://localhost:3001/product/hotprod', setHotProducts);
+    fetchProducts('http://localhost:3001/product/latest', setLatestProducts);
+    fetchProducts('http://localhost:3001/product/featured', setFeaturedProducts);
+  }, []);
 
   return (
-    <div>
+    <div className="container mx-auto p-4 md:p-8">
       {/* Hot Products Carousel */}
       <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-4">Hot Products</h2>
-        <div className="flex overflow-x-auto space-x-4">
+        <h2 className="text-2xl font-bold mb-4 text-teal-400">Hot Products</h2>
+        <div className="flex overflow-x-auto space-x-4 scrollbar-hide">
           {hotProducts.map(product => (
             <ProductCard
               key={product._id}
@@ -62,7 +44,7 @@ const HomePage = ({ cartItems, addToCart, increaseQuantity, decreaseQuantity }) 
 
       {/* Latest Products */}
       <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-4">Latest Products</h2>
+        <h2 className="text-2xl font-bold mb-4 text-teal-400">Latest Products</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {latestProducts.map(product => (
             <ProductCard
@@ -79,7 +61,7 @@ const HomePage = ({ cartItems, addToCart, increaseQuantity, decreaseQuantity }) 
 
       {/* Featured Products */}
       <div>
-        <h2 className="text-2xl font-bold mb-4">Featured Products</h2>
+        <h2 className="text-2xl font-bold mb-4 text-teal-400">Featured Products</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {featuredProducts.map(product => (
             <ProductCard

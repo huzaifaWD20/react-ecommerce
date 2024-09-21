@@ -34,7 +34,7 @@ const addProduct = async (req, res) => {
 const getProductById = async (req, res) => {
   try {
     const { productid } = req.params; // Extract product ID from the URL parameters
-    console.log(productid)
+
     // Find the product by ID
     const product = await Product.findById(productid);
 
