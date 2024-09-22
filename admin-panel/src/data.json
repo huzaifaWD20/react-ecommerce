@@ -1,0 +1,136 @@
+{
+  "categories": [
+    {
+      "id": "1",
+      "name": "BT Modules"
+    },
+    {
+      "id": "2",
+      "name": "Arduino Chips"
+    },
+    {
+      "id": "3",
+      "name": "Wires"
+    }
+  ],
+  "productTypes": [
+    {
+      "id": "1",
+      "name": "Hot Products"
+    },
+    {
+      "id": "2",
+      "name": "Latest Products"
+    },
+    {
+      "id": "3",
+      "name": "Featured Products"
+    }
+  ],
+  "products": [
+    {
+      "name": "Arduino Uno",
+      "price": 25.99,
+      "description": "A microcontroller board based on the ATmega328P.",
+      "category": "2",
+      "type": "1",
+      "image": "/src/assets/images/product_4.png",
+      "id": "1"
+    },
+    {
+      "id": "2",
+      "name": "Raspberry Pi 4",
+      "description": "A small, affordable computer that you can use for programming.",
+      "price": 45.99,
+      "image": "/src/assets/images/bannerkids.png",
+      "category": "2",
+      "type": "1",
+      "rating": 4,
+      "reviews": [
+        {
+          "user": "John Doe",
+          "comment": "Great product!",
+          "rating": 4
+        },
+        {
+          "user": "Jane Smith",
+          "comment": "Good value for money.",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "name": "ESP8266 WiFi Module",
+      "price": 6.5,
+      "description": "A low-cost Wi-Fi microchip with full TCP/IP stack.",
+      "category": "1",
+      "type": "2",
+      "image": "/src/assets/images/product_1.png",
+      "id": "3"
+    },
+    {
+      "id": "4",
+      "name": "DC Motor",
+      "description": "A DC motor is any of a class of rotary electrical motors that converts direct current electrical energy into mechanical energy.",
+      "price": 10,
+      "image": "/src/assets/images/product_2.png",
+      "category": "3",
+      "type": "2",
+      "rating": 4,
+      "reviews": [
+        {
+          "user": "John Doe",
+          "comment": "Great product!",
+          "rating": 4
+        },
+        {
+          "user": "Jane Smith",
+          "comment": "Good value for money.",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "name": "Breadboard",
+      "description": "A breadboard is a construction base for prototyping of electronics.",
+      "price": 4.5,
+      "image": "/src/assets/images/product_3.png",
+      "category": "3",
+      "type": "3",
+      "rating": 4,
+      "reviews": [
+        {
+          "user": "John Doe",
+          "comment": "Great product!",
+          "rating": 4
+        },
+        {
+          "user": "Jane Smith",
+          "comment": "Good value for money.",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "name": "Jumper Wires",
+      "price": 2.98,
+      "description": "Jumper wires are simple wires that have connector pins at each end.",
+      "category": "3",
+      "type": "3",
+      "image": "/src/assets/images/product_4.png",
+      "id": "6"
+    },
+    {
+      "id": "6414",
+      "name": "Huzai",
+      "price": 100,
+      "description": "Lorem Ipsum",
+      "category": "1",
+      "type": "2",
+      "image": "blob:http://localhost:5173/9833c070-200c-4d64-9832-1295534c64c4",
+      "rating": 0,
+      "reviews": []
+    }
+  ]
+}
