@@ -2,9 +2,32 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:5175/api';
 
-export const signUpUser = async (userData) => {
+// Step 1: Send OTP
+export const sendOtp = async (formData) => {
+  const { name, email, password, phoneNumber } = formData;
   try {
-    const response = await axios.post(`${API_URL}/auth/signup`, userData, { withCredentials: true });
+    const response = await axios.post(`${API_URL}/auth/send-otp`, { name, email, password, phoneNumber }, { withCredentials: true });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response.data.message || 'Error sending OTP');
+  }
+};
+
+// Step 2: Verify OTP
+export const verifyOtp = async (otpData) => {
+  const { otp } = otpData;
+  try {
+    const response = await axios.post(`${API_URL}/auth/verify-otp`, { otp }, { withCredentials: true });
+    return response;
+  } catch (error) {
+    throw new Error(error.response.data.message || 'Error verifying OTP');
+  }
+};
+
+// Step 3: Complete Signup after OTP verification
+export const signUpUser = async () => {
+  try {
+    const response = await axios.post(`${API_URL}/auth/signup`, {}, { withCredentials: true });
     return response.data.user;
   } catch (error) {
     throw new Error(error.response.data.message || 'Error signing up');

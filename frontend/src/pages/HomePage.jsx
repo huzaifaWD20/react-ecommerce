@@ -5,6 +5,29 @@ import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import Footer from '../components/Footer';
 
+const testimonials = [
+  {
+    quote: "Excellent Service and Quality! I ordered some Arduino boards and sensors from TECH JEWEL, and I was blown away by the quality of the components. The shipping was fast, and everything arrived in perfect condition. Their customer service team was super responsive and helped me choose the right products for my project. Definitely my go-to store for electronics now!",
+    name: "Ahmed R."
+  },
+  {
+    quote: "Fast Shipping and Affordable Prices. I needed an ESP module and a few converters for a DIY project, and TECH JEWEL had everything I was looking for. The prices are very reasonable, and the products are high quality. Plus, my order arrived within 3 days! I highly recommend TECH JEWEL to any hobbyists or engineering students out there.",
+    name: "Sara M."
+  },
+  {
+    quote: "A Lifesaver for My Projects! I was struggling to find reliable electronic components for a school project, but TECH JEWEL had everything I needed in one place. The 12V power module I ordered worked perfectly, and their team even answered my questions about how to use it! Super helpful and quick to respond—highly recommended!",
+    name: "Zainab A."
+  },
+  {
+    quote: "Top-notch Customer Support! I'm new to electronics, and TECH JEWEL made my experience so easy! I wasn't sure which converter to get, but they guided me through the options. The products were well-packaged, arrived in just a few days, and worked like a charm. I'll definitely be ordering again for my future projects.",
+    name: "Hassan I."
+  },
+  {
+    quote: "Great Prices and Quick Delivery! I've been ordering components from different sites for my DIY projects, and TECH JEWEL is hands down the best. Their prices are unbeatable, and the products are high quality. I was impressed by the fast delivery—it arrived even earlier than expected! This is now my favorite place to shop for electronic parts.",
+    name: "Wania S."
+  },
+];
+
 const HomePage = ({ products, categories, loading, addToCart, removeFromCart, cartItems, increaseQuantity, decreaseQuantity }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const categoriesPerPage = 8;
@@ -151,17 +174,17 @@ const HomePage = ({ products, categories, loading, addToCart, removeFromCart, ca
         </section>
 
         {/* Testimonials */}
-        <section className="py-16">
+        <section className="py-16 bg-gradient-to-b from-white to-gray-100">
           <div className="container mx-auto px-4">
             <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">What Our Customers Say</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[1, 2, 3].map((testimonial) => (
+              {testimonials.map((testimonial, index) => (
                 <motion.div
-                  key={testimonial}
+                  key={index}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: testimonial * 0.1 }}
-                  className="bg-white rounded-lg shadow-md p-6"
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="bg-white rounded-lg shadow-md p-6 flex flex-col h-full"
                 >
                   <div className="flex items-center mb-4">
                     <div className="flex text-yellow-400">
@@ -170,10 +193,8 @@ const HomePage = ({ products, categories, loading, addToCart, removeFromCart, ca
                       ))}
                     </div>
                   </div>
-                  <p className="text-gray-600 mb-4">
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet."
-                  </p>
-                  <p className="font-semibold">- John Doe</p>
+                  <p className="text-gray-600 mb-4 flex-grow">{testimonial.quote}</p>
+                  <p className="font-semibold text-right">- {testimonial.name}</p>
                 </motion.div>
               ))}
             </div>

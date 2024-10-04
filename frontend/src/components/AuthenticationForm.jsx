@@ -2,15 +2,20 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
-import { FaGoogle, FaFacebook, FaApple } from 'react-icons/fa';
-import { signUpUser, loginUser } from '../assets/utils/authentication.js';
+import { sendOtp, verifyOtp, signUpUser, loginUser } from '../assets/utils/authentication.js';
 
 const AuthenticationForm = ({ isSignUp, handleUserLogin, isAdmin }) => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '', phoneNumber: '' });
+  const [otp, setOtp] = useState(''); // State for OTP
+  const [isOtpSent, setIsOtpSent] = useState(false); // Track OTP step
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleOtpChange = (e) => {
+    setOtp(e.target.value);
   };
 
   const handleSubmit = async (e) => {
@@ -18,25 +23,40 @@ const AuthenticationForm = ({ isSignUp, handleUserLogin, isAdmin }) => {
 
     try {
       if (isAdmin) {
-        // Implement admin login logic
+        // Admin login logic
         toast.success('Admin login successful!');
         navigate('/admin/dashboard');
-      } else {
-        if (isSignUp) {
+      } else if (isSignUp) {
+        // Step 1: Send OTP for email verification
+        if (!isOtpSent) {
           if (formData.password !== formData.confirmPassword) {
             toast.error('Passwords do not match');
             return;
           }
-          await signUpUser(formData);
-          toast.success('Signup successful! Please log in.');
-          setFormData({ name: '', email: '', password: '', confirmPassword: '', phoneNumber: '' });
-          navigate('/login');
+
+          // Send OTP to the user's email
+          await sendOtp(formData);
+          toast.success('OTP sent to your email. Please check your inbox.');
+          setIsOtpSent(true);
         } else {
-          const user = await loginUser(formData.email, formData.password);
-          toast.success('Login successful!');
-          handleUserLogin(user);
-          navigate('/');
+          // Step 2: Verify OTP and complete signup
+          const response = await verifyOtp({ otp });
+          if (response.status === 200) {
+            // Now sign up the user after OTP verification
+            await signUpUser();
+            toast.success('Signup successful! Please log in.');
+            setFormData({ name: '', email: '', password: '', confirmPassword: '', phoneNumber: '' });
+            navigate('/login');
+          } else {
+            toast.error('Invalid OTP. Please try again.');
+          }
         }
+      } else {
+        // Regular login flow
+        const user = await loginUser(formData.email, formData.password);
+        toast.success('Login successful!');
+        handleUserLogin(user);
+        navigate('/');
       }
     } catch (error) {
       toast.error(error.message);
@@ -58,49 +78,48 @@ const AuthenticationForm = ({ isSignUp, handleUserLogin, isAdmin }) => {
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {isSignUp && !isAdmin && (
-          <div>
-            <label htmlFor="name" className="block text-gray-700 mb-1">Name</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
-            />
-          </div>
-        )}
-
-        <div>
-          <label htmlFor="email" className="block text-gray-700 mb-1">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="password" className="block text-gray-700 mb-1">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
-          />
-        </div>
-
-        {isSignUp && !isAdmin && (
+        {/* Sign Up Form */}
+        {isSignUp && !isAdmin && !isOtpSent && (
           <>
+            <div>
+              <label htmlFor="name" className="block text-gray-700 mb-1">Name</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-gray-700 mb-1">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-gray-700 mb-1">Password</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+            </div>
+
             <div>
               <label htmlFor="confirmPassword" className="block text-gray-700 mb-1">Confirm Password</label>
               <input
@@ -113,6 +132,7 @@ const AuthenticationForm = ({ isSignUp, handleUserLogin, isAdmin }) => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
             </div>
+
             <div>
               <label htmlFor="phoneNumber" className="block text-gray-700 mb-1">Phone Number</label>
               <input
@@ -125,41 +145,79 @@ const AuthenticationForm = ({ isSignUp, handleUserLogin, isAdmin }) => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
             </div>
+
+            <button
+              type="submit"
+              className="w-full bg-teal-600 text-white py-2 px-4 rounded-md hover:bg-teal-700 transition duration-300"
+            >
+              Send OTP
+            </button>
           </>
         )}
 
-        <button
-          type="submit"
-          className="w-full bg-teal-600 text-white py-2 px-4 rounded-md hover:bg-teal-700 transition duration-300"
-        >
-          {isAdmin ? 'Login as Admin' : isSignUp ? 'Sign Up' : 'Login'}
-        </button>
+        {/* OTP Verification Form */}
+        {isSignUp && isOtpSent && (
+          <>
+            <div>
+              <label htmlFor="otp" className="block text-gray-700 mb-1">Enter OTP</label>
+              <input
+                type="text"
+                id="otp"
+                name="otp"
+                value={otp}
+                onChange={handleOtpChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-teal-600 text-white py-2 px-4 rounded-md hover:bg-teal-700 transition duration-300"
+            >
+              Verify OTP & Sign Up
+            </button>
+          </>
+        )}
+
+        {/* Login Form */}
+        {!isSignUp && (
+          <>
+            <div>
+              <label htmlFor="email" className="block text-gray-700 mb-1">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-gray-700 mb-1">Password</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-teal-600 text-white py-2 px-4 rounded-md hover:bg-teal-700 transition duration-300"
+            >
+              Login
+            </button>
+          </>
+        )}
       </form>
-
-      {!isAdmin && (
-        <div className="mt-6 space-y-4">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or continue with</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3">
-            <button className="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md hover:bg-gray-50 transition duration-300">
-              <FaGoogle size={20} className="text-red-500" />
-            </button>
-            <button className="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md hover:bg-gray-50 transition duration-300">
-              <FaFacebook size={20} className="text-blue-600" />
-            </button>
-            <button className="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md hover:bg-gray-50 transition duration-300">
-              <FaApple size={20} className="text-gray-800" />
-            </button>
-          </div>
-        </div>
-      )}
 
       {!isAdmin && (
         <div className="mt-4 text-center">

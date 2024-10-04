@@ -39,7 +39,6 @@ function generateOrderItemsHtml(items) {
 async function sendOrderConfirmationEmail(order, customerEmail) {
   const simpleOrderId = order.simpleOrderId;
   const orderDate = new Date(order.createdAt).toLocaleDateString();
-  const orderItemsHtml = generateOrderItemsHtml(order.items);
 
   try {
     const msg = {
@@ -65,13 +64,18 @@ async function sendOrderConfirmationEmail(order, customerEmail) {
             <thead>
               <tr style="background-color: #0d9488; color: white;">
                 <th style="padding: 10px; text-align: left;">Product</th>
-                <th style="padding: 10px; text-align: left;">Product ID</th>
                 <th style="padding: 10px; text-align: left;">Quantity</th>
                 <th style="padding: 10px; text-align: left;">Price</th>
               </tr>
             </thead>
             <tbody>
-              ${orderItemsHtml}
+              ${order.items.map(item => `
+                <tr>
+                  <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${item.product_name}</td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${item.quantity}</td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">Rs ${item.price.toFixed(2)}</td>
+                </tr>
+              `).join('')}
             </tbody>
           </table>
 
@@ -103,7 +107,7 @@ async function sendOrderNotificationToOwner(order) {
 
   try {
     const msg = {
-      to: 'k213272@nu.edu.pk',
+      to: process.env.SMTP_MAIL,
       from: process.env.SMTP_MAIL,
       subject: 'New Order Received - TJ Tech Jewel',
       html: `
