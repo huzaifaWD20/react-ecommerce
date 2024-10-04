@@ -60,7 +60,7 @@ const ProductCard = ({ product, addToCart, removeFromCart, cartItems = [], incre
         <img
           src={`data:image/jpeg;base64,${product.image_base64}`} // Display image from base64 data
           alt={product.product_name}
-          className="w-full h-48 object-cover"
+          className="w-full h-full object-cover"
         />
         <motion.div
           initial={{ opacity: 0 }}

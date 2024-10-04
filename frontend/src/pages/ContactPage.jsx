@@ -18,7 +18,7 @@ const ContactPage = () => {
           </p>
           <div className="space-y-4">
             <a
-              href="https://wa.me/1234567890"
+              href="https://wa.me/+923365233353"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center text-teal-600 hover:text-teal-700 transition duration-300"
@@ -27,7 +27,7 @@ const ContactPage = () => {
               Chat with us on WhatsApp
             </a>
             <a
-              href="mailto:support@techjewel.com"
+              href="mailto:tj.tech.jewel@gmail.com"
               className="flex items-center text-teal-600 hover:text-teal-700 transition duration-300"
             >
               <FaEnvelope className="mr-2" size={24} />

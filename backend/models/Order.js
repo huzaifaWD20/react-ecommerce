@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 
 const orderSchema = new mongoose.Schema({
+  simpleOrderId: {
+    type: String,
+    required: true,
+    unique: true
+  },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -9,6 +14,10 @@ const orderSchema = new mongoose.Schema({
   },
   items: [{
     productID: {
+      type: String,
+      required: true
+    },
+    product_name: {
       type: String,
       required: true
     },

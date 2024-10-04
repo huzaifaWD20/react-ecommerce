@@ -1,8 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, ShoppingCart, User, ChevronDown, Plus, Minus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-// import { logoutUser } from '../assets/utils/authentication.js';
 
 const Navbar = ({ cartItems = [], removeFromCart, addToCart, increaseQuantity, decreaseQuantity, user, setUser, handleLogout }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -11,9 +10,8 @@ const Navbar = ({ cartItems = [], removeFromCart, addToCart, increaseQuantity, d
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Calculate total price directly without '$'
   const totalPrice = cartItems.reduce(
-    (total, item) => total + item.quantity * item.price, // item.price should be a number
+    (total, item) => total + item.quantity * item.price,
     0
   );
 
@@ -21,14 +19,47 @@ const Navbar = ({ cartItems = [], removeFromCart, addToCart, increaseQuantity, d
     <Link
       to={to}
       className={`text-gray-700 hover:text-teal-600 transition duration-200 ${location.pathname === to ? 'text-teal-600 font-semibold' : ''}`}
+      onClick={() => setIsMobileMenuOpen(false)}
     >
       {children}
     </Link>
   );
 
+  const handleLogoutClick = async () => {
+    try {
+      await handleLogout();
+      setUser(null);
+      setIsProfileOpen(false);
+      navigate('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   const handleAddToCart = (item) => {
     addToCart(item);
   };
+
+  useEffect(() => {
+    if (isCartOpen) {
+      setIsProfileOpen(false);
+      setIsMobileMenuOpen(false);
+    }
+  }, [isCartOpen]);
+
+  useEffect(() => {
+    if (isProfileOpen) {
+      setIsCartOpen(false);
+      setIsMobileMenuOpen(false);
+    }
+  }, [isProfileOpen]);
+
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      setIsCartOpen(false);
+      setIsProfileOpen(false);
+    }
+  }, [isMobileMenuOpen]);
 
   return (
     <nav className="bg-white shadow-md">
@@ -41,8 +72,15 @@ const Navbar = ({ cartItems = [], removeFromCart, addToCart, increaseQuantity, d
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
-            <Link to="/" className="text-2xl font-semibold text-teal-600 ml-2 lg:ml-0">
-              TECH JEWEL
+            <Link to="/" className="flex items-center ml-2 lg:ml-0">
+              <div className="w-12 h-12 overflow-hidden rounded-full mr-2 border-2 border-teal-600">
+                <img 
+                  src="/tjlogo.jpg" 
+                  alt="Tech Jewel Logo" 
+                  className="w-full h-full object-cover object-center transform scale-150"
+                />
+              </div>
+              <span className="text-2xl font-semibold text-teal-600">TECH JEWEL</span>
             </Link>
           </div>
 
@@ -62,7 +100,7 @@ const Navbar = ({ cartItems = [], removeFromCart, addToCart, increaseQuantity, d
                 <ShoppingCart size={24} />
                 {cartItems.length > 0 && (
                   <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {cartItems.reduce((total, item) => total + item.quantity, 0)} {/* Show total quantity */}
+                    {cartItems.reduce((total, item) => total + item.quantity, 0)}
                   </span>
                 )}
               </button>
@@ -146,7 +184,7 @@ const Navbar = ({ cartItems = [], removeFromCart, addToCart, increaseQuantity, d
                         </div>
                         <Link to="/profile" className="block py-2 text-sm text-gray-700 hover:text-teal-600">View Profile</Link>
                         <Link to="/orders" className="block py-2 text-sm text-gray-700 hover:text-teal-600">Orders</Link>
-                        <button onClick={handleLogout} className="block w-full text-left py-2 text-sm text-red-600 hover:text-red-700">Logout</button>
+                        <button onClick={handleLogoutClick} className="block w-full text-left py-2 text-sm text-red-600 hover:text-red-700">Logout</button>
                       </>
                     ) : (
                       <>
@@ -161,7 +199,6 @@ const Navbar = ({ cartItems = [], removeFromCart, addToCart, increaseQuantity, d
           </div>
         </div>
 
-        {/* Mobile menu */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
